@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+
+import nltk
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+from sklearn.model_selection import train_test_split
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+import pandas as pd
+import pickle
+import os
+import json
+
+prefix = "/home/parth/Desktop/sagemaker_deployment/"
+
+input_path = os.path.join(prefix + 'input/data')
+output_path = os.path.join(prefix, 'output')
+model_path = os.path.join(prefix, 'model')
+
+# add your hyper parameters for the model so the model can be trained on those
+param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
+
+with open(param_path) as fl:
+    hyperparameters = json.load(fl)
+
+print(nltk.download("stopwords"))
+stop_words = stopwords.words('english')
+
+
+columns = ["polarity", "tweet_id", "date", "query", "user_id", "tweet" ]
+data = pd.read_csv("{}/training.1600000.processed.noemoticon.csv".format(input_path), header=None, names=columns , encoding="ISO-8859-1")
+data = data.sample(frac=1).reset_index(drop=True)
+
+train, test_val = train_test_split(data, test_size=0.20, random_state=42)
+del data
+
+test, val = train_test_split(test_val, test_size=0.50, random_state=42)
+del test_val
+
+print(train.shape, test.shape, val.shape)
+
+
+# # Note: 
+# This is very simple model I am not going to any crazy feature engineering. Only thing I am going to do is tfidf the tokens to features and train a simple model
+
+def preprocess(sentence, stop_words=stop_words):
+    sentence=str(sentence)
+    sentence = sentence.lower()
+    # remove non numeric and other tokens
+    tokenizer = RegexpTokenizer(r'\w+')
+    tokens = tokenizer.tokenize(sentence)  
+    filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
+    return " ".join(filtered_words)
+
+
+train["tweet_tokens"] = train["tweet"].apply(preprocess)
+
+
+vectorizer = TfidfVectorizer(stop_words="english", max_df=0.9, max_features=25000, norm="l2")
+train_X = vectorizer.fit_transform(train["tweet_tokens"])
+train_Y = train["polarity"]
+
+
+val["tweet_tokens"] = val["tweet"].apply(preprocess)
+val_X = vectorizer.transform(val["tweet_tokens"])
+val_Y = val["polarity"]
+
+
+test["tweet_tokens"] = test["tweet"].apply(preprocess)
+test_X = vectorizer.transform(test["tweet_tokens"])
+test_Y = test["polarity"]
+
+
+clf = LogisticRegression(random_state=0, max_iter=hyperparameters["max_iter"]).fit(train_X, train_Y)
+
+print("Train score", clf.score(train_X, train_Y))
+print("Validation score", clf.score(val_X, val_Y))
+print("Test score", clf.score(test_X, test_Y))
+
+
+with open("{}/logistic_model.pkl".format(model_path) , "wb") as fl:
+    pickle.dump(clf, fl)
+
+with open("{}/vectorizer.pkl".format(model_path) , "wb") as fl:
+    pickle.dump(vectorizer, fl)
+
