@@ -15,7 +15,7 @@ import pickle
 import os
 import json
 
-prefix = "/home/parth/Desktop/sagemaker_deployment/"
+prefix = "/opt/ml/"
 
 input_path = os.path.join(prefix + 'input/data')
 output_path = os.path.join(prefix, 'output')
@@ -88,3 +88,5 @@ with open("{}/logistic_model.pkl".format(model_path) , "wb") as fl:
 with open("{}/vectorizer.pkl".format(model_path) , "wb") as fl:
     pickle.dump(vectorizer, fl)
 
+
+print("saved")
