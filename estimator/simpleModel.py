@@ -2,7 +2,6 @@ import pickle
 import os
 from util import preprocess
 
-# prefix = "/home/parth/sagemaker_deployment/"
 prefix = "/opt/ml/"
 
 class SimpleModel():
