@@ -5,5 +5,5 @@
 # sh local_test/serve_local.sh
 
 image=$1
-
-docker run -v /home/parth/sagemaker_deployment/demo_files/:/opt/ml/ -p 8080:8080 --rm ${image} serve
+currentpath="$(pwd)"
+docker run -v $currentpath/demo_files/:/opt/ml/ -p 8080:8080 --rm ${image} serve

@@ -1,11 +1,17 @@
 #!/bin/sh
 
+# run this from project root directory
+# sh local_test/train_local.sh
+
+
 image=$1
 
-mkdir -p /home/parth/sagemaker_deployment/demo_files/model/
-mkdir -p /home/parth/sagemaker_deployment/demo_files/output/
+currentpath="$(pwd)"
 
-rm -rf /home/parth/sagemaker_deployment/demo_files/model/*
-rm -rf /home/parth/sagemaker_deployment/demo_files/output/*
+mkdir -p $currentpath/demo_files/model/
+mkdir -p $currentpath/demo_files/output/
 
-docker run -v /home/parth/sagemaker_deployment/demo_files/:/opt/ml/ --rm ${image} train
+rm -rf $currentpath/demo_files/model/*
+rm -rf $currentpath/demo_files/output/*
+
+docker run -v $currentpath/demo_files/:/opt/ml/ --rm ${image} train
