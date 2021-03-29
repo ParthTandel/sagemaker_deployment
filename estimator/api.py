@@ -62,14 +62,18 @@ def prediction():
     # if label is 4 then the sentiment is positive
     # else the sentiment is negative
 
-    if SimpleModel.predict(data["text"]) == 4:
+    prediction = SimpleModel.predict(data["text"])
+    if prediction[0] == 4:
         pred = "positive"
+        prob = prediction[1][1]
     else:
         pred = "negative"
+        prob = prediction[1][0]
     
     # again here formulating the response
     response = flask.jsonify(status = 200, 
                             prediction = pred,
+                            score = prob,
                             category ="success")
     # status code of success to 200
     response.status_code = 200

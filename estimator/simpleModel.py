@@ -43,4 +43,4 @@ class SimpleModel():
         vector = vectorizer.transform([preprocessed_text])
 
         # use the sklearn logistic regression predict function to make predicitions
-        return clf.predict(vector)
+        return clf.predict(vector)[0], clf.predict_proba(vector)[0]
