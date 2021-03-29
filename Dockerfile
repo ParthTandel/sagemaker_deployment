@@ -2,11 +2,12 @@
 # task in this file
 # 1) Pull ubuntu18.04 base image.
 # 2) Install required packages like python, python-pip and other certificates.
-# 3) If installing python3 create a symb link to python.
-# 4) Copy requirement from the project.
-# 5) Install python related library in the requirement.txt file.
-# 6) Set python to /opt/program/ where the files from the estimator will be copied to
-# 7) Set the working directory.
+# 3) After installing python3 create a symb link to python.
+# 4) Copy requirements.txt file from the project.
+# 5) Install python related library using the requirement.txt file.
+# 6) copy your code to the /opt/program/ directory of the container.
+# 7) Set python path to /opt/program/ where the files from the estimator will be copied to
+# 8) Set the working directory.
 # thats it. I know this looks like a lot but once you get a hang of it, it is very simple.
 # also this file is driectly from the amazon shell code with some small changes.
 
@@ -17,6 +18,7 @@
 FROM ubuntu:18.04
 
 
+# install python, pip and other required tools
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
          python3-pip \
@@ -25,14 +27,11 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
          ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# create symblink for python and pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN ln -s /usr/bin/pip3 /usr/bin/pip
 
 # Here we get all python packages.
-# There's substantial overlap between scipy and numpy that we eliminate by
-# linking them together. Likewise, pip leaves the install caches populated which uses
-# a significant amount of space. These optimizations save a fair amount of space in the
-# image, which reduces start up time.
 COPY requirement.txt .
 RUN pip --no-cache-dir install -r requirement.txt
 

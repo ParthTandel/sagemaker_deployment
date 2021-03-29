@@ -15,7 +15,7 @@ input_path = os.path.join(prefix + 'input/data')
 output_path = os.path.join(prefix, 'output')
 model_path = os.path.join(prefix, 'model')
 
-# add your hyper parameters for the model so the model can be trained on those
+# add your hyper parameters for the model which are required by the model for training
 param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
 
 with open(param_path) as fl:
@@ -59,9 +59,11 @@ print("Train score", clf.score(train_X, train_Y))
 print("Validation score", clf.score(val_X, val_Y))
 print("Test score", clf.score(test_X, test_Y))
 
+# assuming the model have been build, save it to model path
 with open("{}/logistic_model.pkl".format(model_path) , "wb") as fl:
     pickle.dump(clf, fl)
 
+# also save any other required files at the model path
 with open("{}/vectorizer.pkl".format(model_path) , "wb") as fl:
     pickle.dump(vectorizer, fl)
 
